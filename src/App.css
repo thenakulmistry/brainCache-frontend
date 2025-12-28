@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-btn-primary: #5046e4;
+  --color-btn-primary-hover: #0023b9;
+  --color-btn-secondary: #e0e7fe;
+  --color-btn-secondary-hover: #c9c8e4;
+  --color-btn-secondary-text: #5046e4;
+}
+
+.animated-gradient {
+  /* A dark gradient: Slate 900 -> Indigo 950 -> Slate 900 */
+  background: linear-gradient(-45deg, #0f172a, #312e81, #1e1b4b, #0f172a);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
