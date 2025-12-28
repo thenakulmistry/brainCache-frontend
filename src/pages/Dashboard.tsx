@@ -53,7 +53,7 @@ export const Dashboard = () => {
             <Button onClick={handleShare} variant="secondary" size="md" label="Share Brain" startIcon={<ShareIcon size="md" />} />
           </div>
         </div>
-        <div className="columns-2 md:columns-3 gap-4 mt-6">
+        <div className="columns-1 md:columns-3 gap-4 mt-6">
           {filteredContents.map(({_id, type, link, title, tags}) => (
             <Card key={_id} _id={_id} type={type} title={title} link={link} tags={tags} />
           ))}
