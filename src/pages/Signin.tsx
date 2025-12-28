@@ -27,9 +27,12 @@ export const Signin = () => {
                 localStorage.setItem("token", jwt);
                 navigate("/dashboard");
             }
-        } catch (error){
-            console.error("Signin failed:", error);
-            toast.error("Signin failed. Please check your credentials");
+        } catch (error: any){
+            if (axios.isAxiosError(error) && error.response?.data?.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Signin failed. Please check your credentials");
+            }
         }
     }
 
@@ -37,7 +40,7 @@ export const Signin = () => {
         <div className="animated-gradient min-h-screen flex flex-col justify-center items-center">
             <form onSubmit={signinHandler} className="flex flex-col items-center gap-4">
                 <h1 className="text-3xl font-bold text-white mb-4">Sign In</h1>
-                <Input placeholder="Email" ref={usernameRef} />
+                <Input placeholder="Email/Username" ref={usernameRef} />
                 <Input placeholder="Password" type="password" ref={passwordRef} />
                 <Button variant="primary" size="md" label="Sign In" fullWidth={true} />
                 <div className="flex flex-col gap-2 items-center">

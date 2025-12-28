@@ -22,9 +22,12 @@ export const Signup = () => {
         try{
             await axios.post(`${BACKEND_URL}/api/v1/signup`, {username, password});
             navigate("/signin");
-        } catch (error){
-            console.error("Signup failed:", error);
-            toast.error("Signup failed. Please try again.");
+        } catch (error: any){
+            if (axios.isAxiosError(error) && error.response?.data?.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Signup failed. Please try again.");
+            }
         }
     }
 
@@ -32,7 +35,7 @@ export const Signup = () => {
         <div className="animated-gradient min-h-screen flex flex-col justify-center items-center">
             <form onSubmit={signupHandler} className="flex flex-col items-center gap-4">
                 <h1 className="text-3xl font-bold text-white mb-4">Sign Up</h1>
-                <Input placeholder="Email" ref={usernameRef}/>
+                <Input placeholder="Email/Username" ref={usernameRef}/>
                 <Input placeholder="Password" type="password" ref={passwordRef} />
                 <Button variant="primary" size="md" label="Sign Up" fullWidth={true} />
                 <div className="flex flex-col gap-2 items-center">
