@@ -1,9 +1,11 @@
-import type React from "react"
+import { memo, useState, useRef } from "react"
 import { YoutubeIcon } from "../icons/YoutubeIcon";
 import { LinkIcon } from "../icons/LinkIcon";
 import { TwitterIcon } from "../icons/TwitterIcon";
 import { DeleteIcon } from "../icons/DeleteIcon";
 import { useContentStore } from "../../store/contentStore";
+import { LoadingIcon } from "../icons/LoadingIcon";
+import { useDebouncedEffect } from "../../hooks/useDebounce";
 
 interface CardProps {
     _id: string,
@@ -13,6 +15,12 @@ interface CardProps {
     tags?: string[],
     readOnly?: boolean,
     onClick?: () => void,
+}
+
+declare global {
+    interface Window {
+        twttr: any;
+    }
 }
 
 const typeIcons: Record<string, React.ReactElement> = {
@@ -37,14 +45,108 @@ const getYoutubeEmbedUrl = (url: string) => {
     }
 }
 
-export const Card = (props: CardProps) => {
+export const Card = memo((props: CardProps) => {
     const { _id, type, title, link, tags, readOnly, onClick } = props;
     const deleteContent = useContentStore((state) => state.deleteContent);
+    const twitterRef = useRef<HTMLDivElement>(null);
+    const [isTweetLoading, setIsTweetLoading] = useState(false);
 
     const hadleDelete = async (e: React.MouseEvent) => {
         e.stopPropagation();
         await deleteContent(_id);
     }
+
+    useDebouncedEffect(() => {
+        if (type !== "twitter") return;
+        
+        const currentRef = twitterRef.current;
+        if (!currentRef) return;
+
+        // Reset state
+        currentRef.innerHTML = ""; 
+        setIsTweetLoading(true);
+
+        const tweetId = link.replace("x.com", "twitter.com").split("/").pop()?.split("?")[0];
+        if (!tweetId) return;
+
+        let isCancelled = false;
+
+        const loadTweet = async () => {
+            // Wait for window.twttr to be available
+            if (!window.twttr) {
+                await new Promise<void>((resolve) => {
+                    const script = document.createElement("script");
+                    script.src = "https://platform.twitter.com/widgets.js";
+                    script.async = true;
+                    script.onload = () => resolve();
+                    document.body.appendChild(script);
+                });
+            }
+
+            // Wait for widgets to be ready
+            if (!window.twttr.widgets) {
+                await new Promise<void>((resolve) => {
+                    const interval = setInterval(() => {
+                        if (window.twttr.widgets) {
+                            clearInterval(interval);
+                            resolve();
+                        }
+                    }, 50);
+                });
+            }
+
+            if (isCancelled) return;
+
+            try {
+                const widget = await window.twttr.widgets.createTweet(
+                    tweetId,
+                    currentRef,
+                    {
+                        theme: 'dark',
+                        dnt: true,
+                        align: 'center'
+                    }
+                );
+
+                if (isCancelled) {
+                    if (currentRef) currentRef.innerHTML = "";
+                    return;
+                }
+
+                // Fallback if widget creation failed (e.g. invalid ID or rate limit)
+                if (!widget && currentRef) {
+                    const fallbackLink = document.createElement('a');
+                    fallbackLink.href = link;
+                    fallbackLink.target = "_blank";
+                    fallbackLink.rel = "noopener noreferrer";
+                    fallbackLink.textContent = "View Tweet on Twitter";
+                    fallbackLink.className = "text-gray-400 hover:text-indigo-400 transition-colors";
+                    currentRef.appendChild(fallbackLink);
+                }
+
+            } catch (e) {
+                console.error("Error loading tweet", e);
+                if (!isCancelled && currentRef) {
+                    const fallbackLink = document.createElement('a');
+                    fallbackLink.href = link;
+                    fallbackLink.target = "_blank";
+                    fallbackLink.rel = "noopener noreferrer";
+                    fallbackLink.textContent = "View Tweet on Twitter";
+                    fallbackLink.className = "text-gray-400 hover:text-indigo-400 transition-colors";
+                    currentRef.appendChild(fallbackLink);
+                }
+            } finally {
+                if (!isCancelled) setIsTweetLoading(false);
+            }
+        };
+
+        loadTweet();
+
+        return () => {
+            isCancelled = true;
+            if (currentRef) currentRef.innerHTML = "";
+        }
+    }, [type, link], 100);
 
     const baseClasses = "flex flex-col rounded-lg p-4 bg-white/10 backdrop-blur-md border-white/20 shadow-sm hover:shadow-md break-inside-avoid mb-4 transition-all duration-300";
 
@@ -75,9 +177,14 @@ export const Card = (props: CardProps) => {
                     allowFullScreen>
                     </iframe>
                 ) : type === "twitter" ? (
-                    <blockquote className="twitter-tweet">
-                        <a href={link.replace("x.com", "twitter.com")}></a> 
-                    </blockquote>
+                    <div className="min-h-37.5 flex justify-center items-center text-gray-400 w-full relative">
+                        {isTweetLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <LoadingIcon />
+                            </div>
+                        )}
+                        <div ref={twitterRef} className="w-full flex justify-center"></div>
+                    </div>
                 ) : (
                     <a
                         href={link}
@@ -96,4 +203,4 @@ export const Card = (props: CardProps) => {
             )}
         </div>
     )
-}
+});
