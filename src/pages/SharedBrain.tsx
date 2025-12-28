@@ -5,11 +5,13 @@ import { BACKEND_URL } from '../config';
 import { Sidebar } from '../components/ui/Sidebar';
 import { Card } from '../components/ui/Card';
 import { HamburgerIcon } from '../components/icons/HamburgerIcon';
+import { useContentStore } from '../store/contentStore';
 
 export const SharedBrain = () => {
     const { hash } = useParams();
     const [brain, setBrain] = useState<any>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const filter = useContentStore((state) => state.filter);
 
     useEffect(() => {
         async function fetchSharedBrain() {
@@ -29,6 +31,10 @@ export const SharedBrain = () => {
         </div>;
     }
 
+    const filteredContents = filter === "all" 
+        ? brain.contents 
+        : brain.contents.filter((content: any) => content.type === filter);
+
     return (
         <>
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -40,7 +46,7 @@ export const SharedBrain = () => {
                     <h1 className="text-2xl font-bold text-white">{brain.username ? `${brain.username}'s Brain` : 'Shared Brain'}</h1>
                 </div>
                 <div className="columns-1 md:columns-3 gap-4 mt-6">
-                    {brain.contents.map(({_id, type, link, title, tags}: any) => (
+                    {filteredContents.map(({_id, type, link, title, tags}: any) => (
                     <Card key={_id} _id={_id} type={type} title={title} link={link} tags={tags} readOnly={true} />
                     ))}
                 </div>
