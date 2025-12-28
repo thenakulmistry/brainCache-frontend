@@ -12,7 +12,11 @@ import { HamburgerIcon } from '../components/icons/HamburgerIcon'
 export const Dashboard = () => {
   const [modalOpen, setModalOpen] =  useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { contents, refresh, shareBrain, filter } = useContentStore();
+  
+  const contents = useContentStore((state) => state.contents);
+  const filter = useContentStore((state) => state.filter);
+  const refresh = useContentStore((state) => state.refresh);
+  const shareBrain = useContentStore((state) => state.shareBrain);
 
   useEffect(() => {
     refresh();
