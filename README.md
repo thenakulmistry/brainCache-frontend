@@ -11,4 +11,5 @@ Share your brain with others
 React, Typescript, TailwindCSS
 
 Zustand (Client State Management)
+
 TanStack Query (Server State Management)
