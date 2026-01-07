@@ -3,9 +3,9 @@ import { YoutubeIcon } from "../icons/YoutubeIcon";
 import { LinkIcon } from "../icons/LinkIcon";
 import { TwitterIcon } from "../icons/TwitterIcon";
 import { DeleteIcon } from "../icons/DeleteIcon";
-import { useContentStore } from "../../store/contentStore";
 import { LoadingIcon } from "../icons/LoadingIcon";
 import { useDebouncedEffect } from "../../hooks/useDebounce";
+import { useDeleteContent } from "../../hooks/useContentQueries";
 
 interface CardProps {
     _id: string,
@@ -47,7 +47,7 @@ const getYoutubeEmbedUrl = (url: string) => {
 
 export const Card = memo((props: CardProps) => {
     const { _id, type, title, link, tags, readOnly, onClick } = props;
-    const deleteContent = useContentStore((state) => state.deleteContent);
+    const deleteContent = useDeleteContent().mutateAsync;
     const twitterRef = useRef<HTMLDivElement>(null);
     const [isTweetLoading, setIsTweetLoading] = useState(false);
 

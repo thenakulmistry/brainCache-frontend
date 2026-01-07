@@ -3,9 +3,10 @@ import { PlusIcon } from '../components/icons/PlusIcon'
 import { ShareIcon } from '../components/icons/ShareIcon'
 import { Card } from '../components/ui/Card'
 import { AddContentModal } from '../components/ui/AddContentModal'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Sidebar } from '../components/ui/Sidebar'
 import { useContentStore } from '../store/contentStore'
+import { useContents, useShareBrain } from '../hooks/useContentQueries'
 import { toast } from '../components/ui/Toast'
 import { HamburgerIcon } from '../components/icons/HamburgerIcon'
 
@@ -13,17 +14,12 @@ export const Dashboard = () => {
   const [modalOpen, setModalOpen] =  useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  const contents = useContentStore((state) => state.contents);
   const filter = useContentStore((state) => state.filter);
-  const refresh = useContentStore((state) => state.refresh);
-  const shareBrain = useContentStore((state) => state.shareBrain);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { data: contents = []} = useContents();
+  const shareBrainMutation = useShareBrain().mutateAsync;
 
   const handleShare = async () => {
-    const hash = await shareBrain();
+    const hash = await shareBrainMutation();
     if(hash){
       const shareUrl = `${window.location.origin}/brain/share/${hash}`;
       await navigator.clipboard.writeText(shareUrl);

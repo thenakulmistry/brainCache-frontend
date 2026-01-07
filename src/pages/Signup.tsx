@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react"
 import { Button } from "../components/ui/Button"
 import { Input } from "../components/ui/Input"
-import { BACKEND_URL } from "../config"
-import axios from "axios"
+import { api } from "../apiClient"
 import { useNavigate } from "react-router-dom"
 import { toast } from "../components/ui/Toast"
 
@@ -20,10 +19,10 @@ export const Signup = () => {
         const username = usernameRef.current?.value;
         const password = passwordRef.current?.value;
         try{
-            await axios.post(`${BACKEND_URL}/api/v1/signup`, {username, password});
+            await api.post(`/signup`, {username, password});
             navigate("/signin");
         } catch (error: any){
-            if (axios.isAxiosError(error) && error.response?.data?.message) {
+            if (error.response?.data?.message) {
                 toast.error(error.response.data.message);
             } else {
                 toast.error("Signup failed. Please try again.");

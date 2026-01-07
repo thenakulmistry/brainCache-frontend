@@ -3,7 +3,7 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import React, { useRef, useState } from "react";
 import { Select } from "./Select";
-import { useContentStore } from "../../store/contentStore";
+import { useAddContent } from "../../hooks/useContentQueries";
 import { toast } from "./Toast";
 
 const ContentType = {
@@ -26,7 +26,7 @@ export function AddContentModal({open, onClose}: {open: boolean, onClose: () => 
     const linkref = useRef<HTMLInputElement>(null);
     const[type, setType] = useState<ContentType>(ContentType.LINK);
 
-    const addContent = useContentStore((state) => state.addContent);
+    const { mutate: addContent } = useAddContent();
 
     async function addContentHandler(e: React.FormEvent) {
         e.preventDefault();
@@ -36,12 +36,19 @@ export function AddContentModal({open, onClose}: {open: boolean, onClose: () => 
             toast.error("Please provide both title and link");
             return;
         }
-        try{
-            await addContent({ title, link, type });
-            onClose();
-        } catch (error) {
-            alert("Failed to add content. Please try again.");
-        }
+        addContent({ title, link, type }, {
+            onSuccess: () => {
+                onClose();
+            },
+            onError: (error: any) => {
+                const message = error.response?.data?.message;
+                if(message){
+                    toast.error(message);
+                    return;
+                }
+                toast.error("Failed to add content. Please try again.");
+            }
+        })
 
     }
 

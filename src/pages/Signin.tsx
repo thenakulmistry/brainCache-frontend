@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react"
 import { Button } from "../components/ui/Button"
 import { Input } from "../components/ui/Input"
-import { BACKEND_URL } from "../config"
-import axios from "axios";
+import { api } from "../apiClient"
 import { useNavigate } from "react-router-dom";
 import { toast } from "../components/ui/Toast";
 
@@ -21,14 +20,14 @@ export const Signin = () => {
         const password = passwordRef.current?.value;
         
         try{
-            const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, { username, password })
+            const response = await api.post(`/signin`, { username, password })
             if (response){
                 const jwt = response.data.token;
                 localStorage.setItem("token", jwt);
                 navigate("/dashboard");
             }
         } catch (error: any){
-            if (axios.isAxiosError(error) && error.response?.data?.message) {
+            if (error.response?.data?.message) {
                 toast.error(error.response.data.message);
             } else {
                 toast.error("Signin failed. Please check your credentials");

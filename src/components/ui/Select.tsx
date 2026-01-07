@@ -23,7 +23,6 @@ export const Select = ({ options, value, onChange, placeholder, label }: SelectP
         <div className="w-full relative">
             {label && <label className="text-gray-400 text-sm mb-2 block">{label}</label>}
             
-            {/* Trigger Button */}
             <div 
                 onClick={() => setIsOpen(!isOpen)}
                 className="bg-gray-800/50 border border-gray-700 text-white rounded-lg px-4 py-2 cursor-pointer flex justify-between items-center hover:bg-gray-800 transition-all outline-none focus:ring-2 focus:ring-indigo-500/50"
@@ -35,7 +34,6 @@ export const Select = ({ options, value, onChange, placeholder, label }: SelectP
                 <ChevronIcon isOpen={isOpen} />
             </div>
 
-            {/* Dropdown Menu */}
             {isOpen && (
                 <div className="absolute w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto">
                     {options.map((option) => (
@@ -54,7 +52,6 @@ export const Select = ({ options, value, onChange, placeholder, label }: SelectP
                 </div>
             )}
             
-            {/* Backdrop to close when clicking outside (optional but good UX) */}
             {isOpen && (
                 <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
             )}
