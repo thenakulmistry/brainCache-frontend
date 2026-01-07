@@ -11,9 +11,14 @@ export interface Content {
 
 export const api = axios.create({
     baseURL: `${BACKEND_URL}/api/v1`,
-    headers: {
-        Authorization: localStorage.getItem("token") || ""
-    },
+})
+
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+    if(token){
+        config.headers.Authorization = token;
+    }
+    return config;
 })
 
 export async function fetchContents(): Promise<Content[]> {
