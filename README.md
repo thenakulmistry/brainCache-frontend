@@ -10,4 +10,5 @@ Share your brain with others
 ## Tech Stack
 React, Typescript, TailwindCSS
 
-Zustand (State Management)
+Zustand (Client State Management)
+TanStack Query (Server State Management)
