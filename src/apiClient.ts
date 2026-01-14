@@ -34,6 +34,7 @@ export function deleteContent(id: string) {
     return api.delete(`/content/${id}`);
 }
 
-export function shareBrain(){
-    return api.post('/brain/share', { share: true });
+export async function shareBrain(): Promise<string> {
+    const response = await api.post<{ hash: string }>('/brain/share', { share: true });
+    return response.data.hash;
 }
